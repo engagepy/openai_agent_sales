@@ -286,10 +286,16 @@ industry = ""
 client = ""
 region = ""
 
+display_map = {
+    desc.split()[-1]: desc
+    for desc in industry_agent_map.keys()
+}
+
 with st.form("sales_strategy_form"):
     col1, col2, col3 = st.columns([3, 3, 3])
     with col1:
-        industry_query = st.text_input("Search Industry Specialisation", placeholder="e.g., Pharma, Retail, Aerospace")
+        selected_label = st.selectbox("Select Industry Specialisation", options=display_map.keys())
+    industry = display_map[selected_label]  # Get full agent descriptor for lookup
     with col2:
         client = st.text_input("Target Enterprise Client")
     with col3:
