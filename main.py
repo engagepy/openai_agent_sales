@@ -307,7 +307,7 @@ if submitted:
     if not client.strip() or not region.strip():
         st.warning("Please enter both the target enterprise client and region of focus.")
     else:
-        matching_agents = [desc for desc in industry_agent_map.keys() if industry_query.lower() in desc.lower()]
+        matching_agents = [desc for desc in industry_agent_map.keys() if selected_label.lower() in desc.lower()]
         if not matching_agents:
             st.warning("No matching industry agent available. Please try a different keyword.")
         else:
