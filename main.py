@@ -239,7 +239,6 @@ st.markdown("""
     .reportview-container .main .block-container {
         padding-top: 2rem; padding-bottom: 2rem;
         background-color: #0f1117;
-        color: white;
     }
     .stButton>button {
         background-color: #0072E3;
@@ -256,6 +255,7 @@ st.markdown("""
         border-radius: 12px;
         margin-bottom: 2rem;
         border: 1px solid #333;
+        color: #f0f0f0; /* Ensures text is light in both themes */
     }
 </style>
 """, unsafe_allow_html=True)
