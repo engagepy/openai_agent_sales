@@ -1,34 +1,43 @@
-'''
-import Open-AI Agents with `pip install openai-agents`
-remember to export OPENAI_API_KEY = sk..
-from agents import Agent, Runner
-'''
 import os
 import asyncio
 import time
 import streamlit as st
-from agents import Runner
 from dotenv import load_dotenv
+from agents import Runner, InputGuardrailTripwireTriggered
 from custom_agents import industry_agent_map
 
 
-# Load environment variables from .env
+# === ENVIRONMENT === #
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 
-# === Agent Runner ===
+# === Agent Runner === #
 async def get_agent_response(industry, client, region):
     agent_function = industry_agent_map[industry]
     agent = agent_function(client, region)
-    query = f"Industry : {industry} Client : {client} Region {region}. Define the strategy and RoI."
-    result = await Runner.run(agent, query)
-    return result.final_output
+
+    query = f"Client: {client}, Industry: {industry}, Region: {region}. Generate a strategic sales plan with RoI insights."
+
+    try:
+        result = await Runner.run(agent, query, context={"industry": industry, "region": region})
+        return result.final_output, None
+    except InputGuardrailTripwireTriggered as e:
+        output_info = getattr(e, "output_info", None)
+        if output_info and hasattr(output_info, "reasoning"):
+            reason = output_info.reasoning  # Use smart AI message
+        elif output_info and hasattr(output_info, "reason"):
+            reason = output_info.reason
+        else:
+            reason = "⚠️ Input rejected by AI validation agent."
+        return None, reason
+
 
 def sync_get_agent_response(industry, client, region):
     return asyncio.run(get_agent_response(industry, client, region))
 
-# === Streamlit UI ===
+
+# === Streamlit UI === #
 st.set_page_config(
     page_title="Enterprise AI Sales Agents",
     layout="wide",
@@ -49,16 +58,14 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5rem 1rem;
     }
-    h1 {
-        text-align: center;
-    }
+    h1 { text-align: center; }
     .info-card {
         background-color: #1e2130;
         padding: 1.5rem;
         border-radius: 12px;
         margin-bottom: 2rem;
         border: 1px solid #333;
-        color: #f0f0f0; /* Ensures text is light in both themes */
+        color: #f0f0f0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -69,36 +76,29 @@ st.markdown("""
 <div class='info-card'>
     <h4>About this App</h4>
     <p>
-        Each industry agent is designed by <strong>M37Labs</strong> to empower sales teams with AI-driven strategies. With each one evolving with continued research.
-        It leverages specialised domain agents to create tailored pitches, competitor insights, compliance readiness,
-        and region-specific intelligence — all in real-time.
+        Built by <strong>M37Labs</strong>, this app empowers sales teams with intelligent, real-time AI agents.
+        These agents generate customised sales strategies, regional insights, and ROI-focused recommendations for any target client.
     </p>
 </div>
 <div class='info-card'>
     <h4>How it Works</h4>
     <ul>
-        <li>Search and select a specialised industry agent</li>
-        <li>Provide target client and operational region</li>
-        <li>Generate a detailed sales playbook with one click</li>
+        <li>Select an industry-specific AI agent</li>
+        <li>Provide your target enterprise client and region</li>
+        <li>Get a tailored sales playbook instantly</li>
     </ul>
 </div>
 """, unsafe_allow_html=True)
 
-industry_query = ""
-industry = ""
-client = ""
-region = ""
-
 display_map = {
-    desc.split()[-1]: desc
-    for desc in industry_agent_map.keys()
+    desc.split()[-1]: desc for desc in industry_agent_map.keys()
 }
 
 with st.form("sales_strategy_form"):
     col1, col2, col3 = st.columns([3, 3, 3])
     with col1:
         selected_label = st.selectbox("Select Industry Specialisation", options=display_map.keys())
-    industry = display_map[selected_label]  # Get full agent descriptor for lookup
+    industry = display_map[selected_label]
     with col2:
         client = st.text_input("Target Enterprise Client")
     with col3:
@@ -110,21 +110,17 @@ if submitted:
     if not client.strip() or not region.strip():
         st.warning("Please enter both the target enterprise client and region of focus.")
     else:
-        matching_agents = [desc for desc in industry_agent_map.keys() if selected_label.lower() in desc.lower()]
-        if not matching_agents:
-            st.warning("No matching industry agent available. Please try a different keyword.")
-        else:
-            industry = matching_agents[0]
-            with st.spinner("Generating AI Sales Strategy..."):
-                start_time = time.time()
-                try:
-                    result = sync_get_agent_response(industry, client, region)
-                    elapsed = round(time.time() - start_time, 2)
-                    st.markdown("### Recommended Strategy")
-                    st.markdown(result)
-                    st.success(f"Agent Generated in {elapsed} seconds.")
-                except Exception as e:
-                    st.error(f"Something went wrong: {e}")
+        with st.spinner("Generating AI Sales Strategy..."):
+            start_time = time.time()
+            result, error = sync_get_agent_response(industry, client, region)
+            elapsed = round(time.time() - start_time, 2)
+
+            if error:
+                st.error(f"🚫 Guardrail Triggered:\n\n{error}")
+            else:
+                st.markdown("### Recommended Strategy")
+                st.markdown(result)
+                st.success(f"Strategy generated in {elapsed} seconds.")
 
 st.markdown("""
 ---
