@@ -39,6 +39,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+st.image("cover.png", use_container_width=True)
+
 st.markdown("""
 <style>
     footer {visibility: hidden;}
@@ -64,7 +66,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>Enterprise AI Sales Agents</h1>", unsafe_allow_html=True)
+st.markdown("<h1>Plutomen - AI Sales Agents</h1>", unsafe_allow_html=True)
 
 st.markdown("""
 <div class='info-card'>
