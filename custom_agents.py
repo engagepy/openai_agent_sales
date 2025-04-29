@@ -7,8 +7,9 @@ from agents import (
     Runner,
     TResponseInputItem,
     input_guardrail,
+    InputGuardrailTripwireTriggered,
 )
-from instruction_templates import COMMON_INSTRUCTIONS_TEMPLATE
+from instruction_templates import COMMON_INSTRUCTIONS_TEMPLATE, PLUTOMEN_INSTRUCTIONS_TEMPLATE
 
 
 # === Guardrail Output Schema === #
@@ -35,7 +36,8 @@ async def validate_client_input(
     ctx: RunContextWrapper[None],
     agent: Agent,
     input: str | list[TResponseInputItem]
-) -> GuardrailFunctionOutput:
+    ) -> GuardrailFunctionOutput:
+    
     text = input if isinstance(input, str) else " ".join(i.input for i in input)
 
     result = await Runner.run(
@@ -44,9 +46,12 @@ async def validate_client_input(
         context=ctx.context
     )
 
+    output = result.final_output
+    print("🔍 Guardrail Agent Output:", output)
+
     return GuardrailFunctionOutput(
-        output_info=result.final_output,
-        tripwire_triggered=not result.final_output.is_valid
+        output_info=output,
+        tripwire_triggered=not output.is_valid
     )
 
 
@@ -82,7 +87,7 @@ class SalesAgentFactory:
                 name="Assistant",
                 tools=tools,
                 handoff_description=self._get_description(industry),
-                instructions=COMMON_INSTRUCTIONS_TEMPLATE(industry, client, region),
+                instructions=PLUTOMEN_INSTRUCTIONS_TEMPLATE(industry, client, region),
                 input_guardrails=[validate_client_input]
             )
         return factory

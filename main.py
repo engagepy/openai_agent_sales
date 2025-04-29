@@ -1,6 +1,7 @@
 import os
 import asyncio
 import time
+from pydantic import BaseModel
 import streamlit as st
 from dotenv import load_dotenv
 from agents import Runner, InputGuardrailTripwireTriggered
@@ -22,15 +23,8 @@ async def get_agent_response(industry, client, region):
     try:
         result = await Runner.run(agent, query, context={"industry": industry, "region": region})
         return result.final_output, None
-    except InputGuardrailTripwireTriggered as e:
-        output_info = getattr(e, "output_info", None)
-        if output_info and hasattr(output_info, "reasoning"):
-            reason = output_info.reasoning  # Use smart AI message
-        elif output_info and hasattr(output_info, "reason"):
-            reason = output_info.reason
-        else:
-            reason = "⚠️ Input rejected by AI validation agent."
-        return None, reason
+    except InputGuardrailTripwireTriggered:
+        return None, "⚠️ Input rejected by AI validation agent. Please revise your industry and region to be valid and relevant."
 
 
 def sync_get_agent_response(industry, client, region):
