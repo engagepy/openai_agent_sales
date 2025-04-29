@@ -120,5 +120,5 @@ if submitted:
 
 st.markdown("""
 ---
-<p style='text-align: center;'>With ❤️ ZP <a href='https://github.com/engagepy' target='_blank'>M37Labs</a></p>
+<p style='text-align: center;'>With ❤️ <a href='https://github.com/engagepy' target='_blank'> ZP </a></p>
 """, unsafe_allow_html=True)
