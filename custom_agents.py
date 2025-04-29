@@ -23,8 +23,12 @@ guardrail_agent = Agent(
     name="Validation Agent",
     tools=[WebSearchTool()],
     instructions=(
-        "Determine if the industry and region in the user prompt are real and relevant to the business context. "
-        "Return is_valid = False if either is clearly wrong or fabricated. Explain why in reasoning."
+        """
+        Determine if the industry and region in the user prompt are real and relevant to the business context. "
+        Return is_valid = False if either is clearly wrong or fabricated. Explain why in reasoning.
+        As long the the Target Client is a real company, the industry and region are valid.
+        If the target client alone is valid, return is_valid = True and reasoning = "Valid client."
+        """
     ),
     output_type=IndustryRegionGuardrailOutput
 )
