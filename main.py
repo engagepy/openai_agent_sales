@@ -120,5 +120,5 @@ if submitted:
 
 st.markdown("""
 ---
-<p style='text-align: center;'>Powered by <a href='https://M37Labs.com' target='_blank'>M37Labs</a></p>
+<p style='text-align: center;'>With ❤️ ZP <a href='https://github.com/engagepy' target='_blank'>M37Labs</a></p>
 """, unsafe_allow_html=True)
