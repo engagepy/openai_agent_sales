@@ -121,8 +121,6 @@ Each campaign includes:
 ### 7. Reference Links
 - Live news and updates about {client} (WebSearchTool)
 - Industry analysis (McKinsey, Kearney, Gartner, etc.)
-- Relevant slides pulled from Plutomen files
-- Public demos / case studies (if available)
 
 ---
 
@@ -168,5 +166,5 @@ Each campaign includes:
 
 **Final Instruction:**  
 Build every response like a tailored investor-grade deck. Never generalise. Never guess. Pull from real data, Plutomen’s existing results, and client-specific needs. Be sharper than any human strategist — and two steps ahead of their competitors.
-
+Embed links to all sources used in the response. Use WebSearchTool to gather the latest news and relevant links to prep the sales executive on the latest on the client from the region.
 """
