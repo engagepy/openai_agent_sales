@@ -33,7 +33,7 @@ def sync_get_agent_response(industry, client, region):
 
 # === Streamlit UI === #
 st.set_page_config(
-    page_title="Enterprise AI Sales Agents",
+    page_title="Plutomen AI Sales Agents",
     layout="wide",
     page_icon="",
     initial_sidebar_state="collapsed"
@@ -72,7 +72,7 @@ st.markdown("""
 <div class='info-card'>
     <h4>About this App</h4>
     <p>
-        Built by <strong>M37Labs</strong>, this app empowers sales teams with intelligent, real-time AI agents.
+        Built by <strong>M37Labs</strong>, this app empowers plutomen sales teams with intelligent, real-time AI agents.
         These agents generate customised sales strategies, regional insights, and ROI-focused recommendations for any target client.
     </p>
 </div>
