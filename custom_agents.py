@@ -53,10 +53,10 @@ async def validate_client_input(
 # === Main Sales Agent Factory === #
 class SalesAgentFactory:
     _industries = [
-        "Healthcare", "Banking, Financial Services, and Insurance", "Aerospace", "Aeronautics", "Biotech",
-        "Defence", "Pharmaceutical", "Telecommunications", "Energy", "Oil & Gas", "Manufacturing",
-        "Automotive", "Retail & E-commerce", "Logistics", "Education", "Legal", "Hospitality",
-        "Construction", "Agricultural Tech", "Cybersecurity", "Media & Entertainment"
+        "Healthcare", "Banking", "FS", "Insurance", "Aerospace", "Aeronautics", "Biotech",
+        "Defence", "Pharmaceutical", "Telecommunications", "Energy", "Oil", "Gas", "Manufacturing",
+        "Automotive", "Retail", "E-commerce", "Logistics", "Education", "Legal", "Hospitality",
+        "Construction", "AgriTech", "Cybersecurity", "Media", "Entertainment"
     ]
 
     def __init__(self):
