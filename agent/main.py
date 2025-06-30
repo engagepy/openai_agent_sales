@@ -1,8 +1,10 @@
 import os
 import asyncio
+import json
 from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import sys
@@ -133,24 +135,94 @@ async def generate_strategy(request: SalesStrategyRequest):
             elapsed_time=elapsed_time
         )
 
-# Streaming endpoint for AI SDK compatibility
-@app.post("/api/chat")
-async def chat_stream(request: SalesStrategyRequest):
-    """Streaming endpoint compatible with AI SDK"""
-    try:
-        result, error = await get_agent_response(
-            request.industry, 
-            request.client, 
-            request.region
-        )
-        
-        if error:
-            return {"error": error}
-        
-        return {"content": result}
-        
-    except Exception as e:
-        return {"error": f"Internal server error: {str(e)}"}
+# Streaming endpoint
+@app.post("/api/strategy")
+async def strategy_stream(request: SalesStrategyRequest):
+    """Streaming endpoint with real-time streaming"""
+    
+    if not request.client.strip() or not request.region.strip():
+        async def error_stream():
+            yield f"data: {json.dumps({'error': 'Both client and region must be provided'})}\n\n"
+            yield f"data: [DONE]\n\n"
+        return StreamingResponse(error_stream(), media_type="text/event-stream")
+    
+    async def generate_stream():
+        try:
+            # Send initial status
+            yield f"data: {json.dumps({'status': 'Initializing AI agent...', 'isComplete': False})}\n\n"
+            await asyncio.sleep(0.5)
+            
+            yield f"data: {json.dumps({'status': 'Analyzing industry requirements...', 'isComplete': False})}\n\n"
+            await asyncio.sleep(0.5)
+            
+            yield f"data: {json.dumps({'status': 'Researching client background...', 'isComplete': False})}\n\n"
+            await asyncio.sleep(0.5)
+            
+            yield f"data: {json.dumps({'status': 'Generating strategic insights...', 'isComplete': False})}\n\n"
+            
+            # Create agent execution task
+            agent_task = asyncio.create_task(get_agent_response(
+                request.industry, 
+                request.client, 
+                request.region
+            ))
+            
+            # Show progress while agent is working
+            progress_messages = [
+                "Analyzing market dynamics...",
+                "Evaluating competitive landscape...", 
+                "Assessing regulatory requirements...",
+                "Calculating ROI projections...",
+                "Developing strategic recommendations...",
+                "Finalizing sales approach...",
+                "Optimizing execution plan..."
+            ]
+            
+            message_index = 0
+            while not agent_task.done():
+                if message_index < len(progress_messages):
+                    yield f"data: {json.dumps({'status': progress_messages[message_index], 'isComplete': False})}\n\n"
+                    message_index += 1
+                await asyncio.sleep(3)  # Update every 3 seconds
+            
+            # Get the result
+            result, error = await agent_task
+            
+            if error:
+                yield f"data: {json.dumps({'error': error})}\n\n"
+                yield f"data: [DONE]\n\n"
+                return
+            
+            # Now stream the actual content word by word
+            if result:
+                yield f"data: {json.dumps({'status': 'Streaming results...', 'isComplete': False})}\n\n"
+                await asyncio.sleep(0.5)
+                
+                words = result.split()
+                current_text = ""
+                
+                # Start with empty content
+                yield f"data: {json.dumps({'content': '', 'isComplete': False})}\n\n"
+                await asyncio.sleep(0.1)
+                
+                # Stream word by word
+                for i, word in enumerate(words):
+                    current_text += word + " "
+                    
+                    # Send update every 3-4 words for smooth streaming
+                    if i % 3 == 0 or i == len(words) - 1:
+                        yield f"data: {json.dumps({'content': current_text.strip(), 'isComplete': False})}\n\n"
+                        await asyncio.sleep(0.05)  # Fast streaming for better UX
+                
+                # Send completion signal
+                yield f"data: {json.dumps({'content': result, 'isComplete': True, 'type': 'complete'})}\n\n"
+                yield f"data: [DONE]\n\n"
+            
+        except Exception as e:
+            yield f"data: {json.dumps({'error': f'Internal server error: {str(e)}'})}\n\n"
+            yield f"data: [DONE]\n\n"
+    
+    return StreamingResponse(generate_stream(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     import uvicorn

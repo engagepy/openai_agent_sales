@@ -44,8 +44,10 @@ export default function StrategyForm({
     setLoading(true)
     setResult(null)
 
+    const startTime = Date.now()
+
     try {
-      const response = await fetch('/api/generate-strategy', {
+      const response = await fetch('/api/strategy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,13 +59,101 @@ export default function StrategyForm({
         }),
       })
 
-      const data: SalesStrategyResponse = await response.json()
-      setResult(data)
+      if (!response.ok) {
+        throw new Error('Failed to connect to the server')
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        throw new Error('No response stream available')
+      }
+
+      let streamingContent = ''
+      
+      // Initialize with streaming state
+      setResult({
+        success: true,
+        strategy: '',
+        elapsed_time: 0,
+        isStreaming: true
+      })
+
+      while (true) {
+        const { done, value } = await reader.read()
+        
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: [DONE]')) {
+            // Stream finished
+            break
+          }
+          
+          if (line.startsWith('data: ') && line.slice(6).trim()) {
+            try {
+              const jsonStr = line.slice(6).trim()
+              if (jsonStr) {
+                const data = JSON.parse(jsonStr)
+                
+                if (data.error) {
+                  setResult({
+                    success: false,
+                    error: data.error,
+                    elapsed_time: Math.round((Date.now() - startTime) / 1000)
+                  })
+                  setLoading(false)
+                  return
+                }
+
+                if (data.status) {
+                  // Show status updates during agent execution
+                  setResult({
+                    success: true,
+                    strategy: '',
+                    elapsed_time: Math.round((Date.now() - startTime) / 1000),
+                    isStreaming: true,
+                    status: data.status
+                  })
+                }
+
+                if (data.content !== undefined) {
+                  streamingContent = data.content
+                  setResult({
+                    success: true,
+                    strategy: streamingContent,
+                    elapsed_time: Math.round((Date.now() - startTime) / 1000),
+                    isStreaming: !data.isComplete && data.type !== 'complete',
+                    status: undefined // Clear status when content starts
+                  })
+                }
+
+                if (data.type === 'complete' || data.isComplete) {
+                  setResult({
+                    success: true,
+                    strategy: data.content,
+                    elapsed_time: Math.round((Date.now() - startTime) / 1000),
+                    isStreaming: false,
+                    status: undefined
+                  })
+                }
+              }
+            } catch (parseError) {
+              // Ignore parse errors for incomplete JSON
+              console.log('Parse error:', parseError, 'Line:', line)
+            }
+          }
+        }
+      }
     } catch (error) {
       setResult({
         success: false,
         error: 'Failed to generate strategy. Please try again.',
-        elapsed_time: 0
+        elapsed_time: Math.round((Date.now() - startTime) / 1000)
       })
     } finally {
       setLoading(false)

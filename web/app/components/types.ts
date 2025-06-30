@@ -7,4 +7,6 @@ export interface SalesStrategyResponse {
   strategy?: string
   error?: string
   elapsed_time: number
+  isStreaming?: boolean
+  status?: string
 } 
