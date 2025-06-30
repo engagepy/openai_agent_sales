@@ -41,4 +41,4 @@ Title : ## Sales Strategy for [Client] in [Region]
     
 
 Output must feel **custom-built** for {client} in {industry} within {region}. Avoid generic boilerplate language. Get creative but stay business-pragmatic. Avoid any intro to conclusive commentary.
-"""
+""" 

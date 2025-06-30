@@ -36,7 +36,7 @@ async def validate_client_input(
     agent: Agent,
     input: str | list[TResponseInputItem]
 ) -> GuardrailFunctionOutput:
-    text = input if isinstance(input, str) else " ".join(i.input for i in input)
+    text = input if isinstance(input, str) else str(input)
 
     result = await Runner.run(
         guardrail_agent,
@@ -95,4 +95,4 @@ class SalesAgentFactory:
 
 factory = SalesAgentFactory()
 agent_funcs = list(factory.agent_funcs.values())
-industry_agent_map = factory.industry_agent_map
+industry_agent_map = factory.industry_agent_map 

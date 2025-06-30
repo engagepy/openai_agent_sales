@@ -1,0 +1,6 @@
+export { default as Header } from './Header'
+export { default as InfoCards } from './InfoCards'
+export { default as StrategyForm } from './StrategyForm'
+export { default as ResultDisplay } from './ResultDisplay'
+export { default as Footer } from './Footer'
+export type { Industry, SalesStrategyResponse } from './types' 
