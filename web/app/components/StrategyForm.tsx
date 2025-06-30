@@ -162,7 +162,7 @@ export default function StrategyForm({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 80 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}
       className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 max-w-5xl mx-auto shadow-blue-500/25 hover:shadow-blue-500/40"

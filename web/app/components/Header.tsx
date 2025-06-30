@@ -8,7 +8,7 @@ export default function Header() {
       <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-blue-500 to-purple-500 opacity-20"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-center"

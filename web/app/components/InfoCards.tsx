@@ -10,7 +10,7 @@ export default function InfoCards() {
   return (
     <div className="grid md:grid-cols-2 gap-8 mb-16 max-w-6xl mx-auto">
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
+        initial={{ opacity: 0, x: -80 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
         className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
@@ -27,7 +27,7 @@ export default function InfoCards() {
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 80 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
         className="backdrop-blur-md bg-white/5 border border-white/10 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
